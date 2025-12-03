@@ -2,10 +2,6 @@ terraform {
   required_version = ">= 1.0"
 
   required_providers {
-    kind = {
-      source  = "tehcyx/kind"
-      version = "~> 0.6"
-    }
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "~> 2.35"
@@ -13,36 +9,10 @@ terraform {
   }
 }
 
-# Provider de Kind
-provider "kind" {}
-
-# Crear el cluster de Kind
-resource "kind_cluster" "matomo" {
-  name           = "matomo-cluster"
-  kubeconfig_path = pathexpand("~/.kube/config")
-  wait_for_ready = true
-
-  kind_config {
-    kind        = "Cluster"
-    api_version = "kind.x-k8s.io/v1alpha4"
-
-    node {
-      role = "control-plane"
-
-      extra_port_mappings {
-        container_port = 30081
-        host_port      = 8081
-      }
-    }
-  }
-}
-
-# Provider de Kubernetes - Configurado para usar el cluster de Kind
+# Provider de Kubernetes conectándose al cluster kind-matomo
 provider "kubernetes" {
-  host                   = kind_cluster.matomo.endpoint
-  cluster_ca_certificate = kind_cluster.matomo.cluster_ca_certificate
-  client_certificate     = kind_cluster.matomo.client_certificate
-  client_key             = kind_cluster.matomo.client_key
+  config_path    = "~/.kube/config"
+  config_context = "kind-matomo"
 }
 
 # Secret para MariaDB
@@ -58,7 +28,7 @@ resource "kubernetes_secret" "mariadb" {
     MARIADB_PASSWORD      = var.db_password
   }
 
-  depends_on = [kind_cluster.matomo]
+
 }
 
 # PersistentVolume para MariaDB
@@ -87,7 +57,7 @@ resource "kubernetes_persistent_volume" "mariadb" {
     }
   }
 
-  depends_on = [kind_cluster.matomo]
+
 }
 
 # PersistentVolumeClaim para MariaDB
@@ -109,8 +79,6 @@ resource "kubernetes_persistent_volume_claim" "mariadb" {
       }
     }
   }
-
-  wait_until_bound = false
 
   depends_on = [kubernetes_persistent_volume.mariadb]
 }
@@ -268,7 +236,7 @@ resource "kubernetes_persistent_volume" "matomo" {
     }
   }
 
-  depends_on = [kind_cluster.matomo]
+
 }
 
 # PersistentVolumeClaim para Matomo
@@ -290,8 +258,6 @@ resource "kubernetes_persistent_volume_claim" "matomo" {
       }
     }
   }
-
-  wait_until_bound = false
 
   depends_on = [kubernetes_persistent_volume.matomo]
 }

@@ -1,11 +1,11 @@
 output "cluster_name" {
-  description = "Nombre del cluster de Kind creado"
-  value       = kind_cluster.matomo.name
+  description = "Nombre del cluster de Kind"
+  value       = "matomo"
 }
 
 output "kubeconfig_path" {
   description = "Ruta al archivo kubeconfig"
-  value       = kind_cluster.matomo.kubeconfig_path
+  value       = "~/.kube/config"
 }
 
 output "matomo_url" {
@@ -13,9 +13,9 @@ output "matomo_url" {
   value       = "http://localhost:${var.matomo_port}"
 }
 
-output "cluster_endpoint" {
-  description = "Endpoint del cluster de Kubernetes"
-  value       = kind_cluster.matomo.endpoint
+output "cluster_context" {
+  description = "Contexto de Kubernetes"
+  value       = "kind-matomo"
 }
 
 output "database_info" {

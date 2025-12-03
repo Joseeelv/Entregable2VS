@@ -1,15 +1,3 @@
-variable "cluster_name" {
-  description = "Nombre del cluster de Kind"
-  type        = string
-  default     = "matomo-cluster"
-}
-
-variable "kubeconfig" {
-  description = "Ruta al archivo kubeconfig"
-  type        = string
-  default     = "~/.kube/config-matomo"
-}
-
 variable "matomo_port" {
   description = "Puerto del host para acceder a Matomo"
   type        = number
