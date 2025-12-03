@@ -46,6 +46,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/matomo-custom:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/matomo-custom:buildcache,mode=max
-
+          platforms: linux/amd64,linux/arm64
       - name: Image digest
         run: echo "Image pushed successfully with digest ${{ steps.meta.outputs.digest }}"
