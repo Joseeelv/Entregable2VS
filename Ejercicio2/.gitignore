@@ -1,0 +1,57 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Datos persistentes locales
+/mnt/
+
+# Secrets y credenciales
+secrets/
+*.pem
+*.key
+*.crt
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
+
+# Comprimidos
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Video del entregable
+*.mp4
+*.avi
+*.mov
+*.mkv
