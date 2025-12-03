@@ -1,4 +1,4 @@
-FROM matomo:5-apache
+FROM matomo:latest
 
 # Información del mantenedor
 LABEL maintainer="test@test.com"
