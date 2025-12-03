@@ -1,6 +1,36 @@
-# Entregable - Kubernetes + Terraform + CI/CD
+# Kubernetes + Terraform + CI/CD - Despliegue de Aplicaciones
 
-Este repositorio contiene la implementación de dos ejercicios sobre despliegue de aplicaciones en Kubernetes utilizando Terraform y GitHub Actions para CI/CD.
+[![Docker Build](https://github.com/Joseeelv/Entregable2VS/actions/workflows/docker-build.yml/badge.svg)](https://github.com/Joseeelv/Entregable2VS/actions/workflows/docker-build.yml)
+[![Terraform](https://img.shields.io/badge/Terraform-%235835CC.svg?logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-%23326ce5.svg?logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+[![Kind](https://img.shields.io/badge/Kind-Local%20Cluster-blue)](https://kind.sigs.k8s.io/)
+
+Este repositorio contiene dos ejercicios prácticos sobre **despliegue de aplicaciones web en Kubernetes** utilizando diferentes enfoques: manifiestos YAML tradicionales y aprovisionamiento con **Terraform**, además de integración continua con **GitHub Actions**.
+
+## Tabla de Contenidos
+
+- [Descripción General](#descripción-general)
+- [Estructura del Repositorio](#estructura-del-repositorio)
+- [Ejercicio 1: Drupal + MySQL en Kubernetes](#ejercicio-1-drupal--mysql-en-kubernetes)
+- [Ejercicio 2: Matomo + MariaDB con Terraform](#ejercicio-2-matomo--mariadb-con-terraform)
+- [Workflows de GitHub Actions](#workflows-de-github-actions)
+- [Solución de Problemas](#solución-de-problemas)
+- [Recursos Adicionales](#recursos-adicionales)
+
+## Descripción General
+
+Este proyecto demuestra dos enfoques diferentes para desplegar aplicaciones web en **Kubernetes local (Kind)**:
+
+1. **Ejercicio 1**: Despliegue tradicional de **Drupal CMS** con **MySQL** usando manifiestos YAML
+2. **Ejercicio 2**: Infraestructura como código (IaC) con **Terraform** para desplegar **Matomo Analytics** con **MariaDB**
+
+Ambos ejercicios implementan:
+
+- **Persistencia de datos** con PersistentVolumes
+- **Gestión de secretos** para credenciales
+- **Health checks** (liveness y readiness probes)
+- **Configuración mediante initContainers**
+- **Exposición de servicios** al host local
 
 ## Estructura del Repositorio
 
@@ -236,7 +266,7 @@ Esto activará automáticamente el workflow de GitHub Actions que:
 - Construirá la imagen personalizada de Matomo
 - La subirá a Docker Hub con el tag `latest`
 
-Puedes verificar el proceso en: `https://github.com/tu-usuario/tu-repo/actions`
+Puedes verificar el proceso en: `https://github.com/tu-usuario/tu-repo/actions`, en mi caso `https://github.com/Joseeelv/Entregable2VS/actions`
 
 #### 2. Inicializar Terraform
 
@@ -376,20 +406,20 @@ La imagen personalizada de Matomo incluye:
 
 ### Outputs de Terraform
 
-Después de `terraform apply`, se mostrarán:
+Después de `terraform apply --auto-approve`, se mostrarán:
 
 ```
 Outputs:
 
-cluster_endpoint = "https://127.0.0.1:xxxxx"
-cluster_name = "matomo-cluster"
+cluster_context = "kind-matomo"
+cluster_name = "matomo"
 database_info = {
   "database" = "matomo"
   "host" = "mariadb"
   "port" = "3306"
   "user" = "matomo"
 }
-kubeconfig_path = "/Users/usuario/.kube/config-matomo"
+kubeconfig_path = "~/.kube/config"
 matomo_url = "http://localhost:8081"
 ```
 
@@ -398,10 +428,17 @@ matomo_url = "http://localhost:8081"
 ```bash
 cd Ejercicio2
 
-# Destruir toda la infraestructura
-terraform destroy
+# Destruir toda la infraestructura si no tenemos persistencia
+terraform destroy --auto-approve
 
-# Confirmar con 'yes'
+# Destruir toda la infraestructura manteniendo la persistencia
+terraform destroy \
+  -target=kubernetes_deployment.mariadb \
+  -target=kubernetes_deployment.matomo \
+  -target=kubernetes_service.mariadb \
+  -target=kubernetes_service.matomo \
+  -target=kubernetes_secret.mariadb \
+  -auto-approve
 
 # Limpiar archivos de Terraform (opcional)
 rm -rf .terraform .terraform.lock.hcl
@@ -455,16 +492,6 @@ kubectl get pv --show-labels
 kubectl get pvc --show-labels
 ```
 
-**Problema**: No puedo acceder a Drupal en el puerto 8085
-
-```bash
-# Con Minikube, usar el servicio
-minikube service drupal-loadbalancer
-
-# O usar port-forward
-kubectl port-forward service/drupal 8085:8085
-```
-
 ### Ejercicio 2
 
 **Problema**: Terraform no puede crear el cluster
@@ -475,6 +502,9 @@ kind version
 
 # Verificar que no hay conflictos de puertos
 lsof -i :8081
+
+# Si existe un cluster, eliminarlo
+kind delete cluster --name <nombre-cluster>
 ```
 
 **Problema**: La imagen no se encuentra en Docker Hub
@@ -519,67 +549,3 @@ kubectl get pv -o yaml | grep persistentVolumeReclaimPolicy
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 
 ---
-
-## Notas para el Video
-
-### Ejercicio 1 - Puntos a cubrir (4-7 minutos):
-
-1. **Explicación de archivos** (1-2 min):
-
-   - Mostrar estructura de archivos
-   - Explicar PVs, PVCs, Secrets, Deployments, Services
-   - Destacar el uso de initContainers en drupal-deployment.yaml
-
-2. **Proceso de despliegue** (2-3 min):
-
-   - Crear cluster
-   - Aplicar manifiestos en orden
-   - Mostrar recursos creados con `kubectl get all`
-   - Mostrar volúmenes con `kubectl get pv,pvc`
-
-3. **Configuración de Drupal** (1 min):
-
-   - Acceder a la URL
-   - Completar instalación mostrando las credenciales
-
-4. **Prueba de persistencia** (1 min):
-   - Eliminar pods con `kubectl delete pod --all`
-   - Mostrar que se recrean
-   - Verificar que los datos persisten
-
-### Ejercicio 2 - Puntos a cubrir (4-8 minutos):
-
-1. **Explicación de archivos** (1-2 min):
-
-   - Mostrar estructura de Terraform (main.tf, variables.tf, outputs.tf)
-   - Explicar Dockerfile personalizado
-   - Mostrar workflow de GitHub Actions
-
-2. **Demostración de CI** (1 min):
-
-   - Mostrar GitHub Actions ejecutándose
-   - Verificar imagen en Docker Hub
-
-3. **Creación de infraestructura** (1-2 min):
-
-   - `terraform init`
-   - `terraform plan`
-   - `terraform apply`
-   - Mostrar outputs
-
-4. **Configuración de Matomo** (2-3 min):
-
-   - Paso 2: Verificar información del sistema (PHP, extensiones)
-   - Paso 3-4: Configurar base de datos
-   - Finalizar instalación
-
-5. **Prueba de persistencia** (1 min):
-   - `terraform destroy`
-   - `terraform apply`
-   - Verificar que los datos persisten
-
----
-
-## Licencia
-
-Este proyecto es parte de un trabajo académico para la asignatura de Virtualización de Sistemas.

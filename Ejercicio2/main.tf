@@ -57,7 +57,10 @@ resource "kubernetes_persistent_volume" "mariadb" {
     }
   }
 
-
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [spec[0].claim_ref]
+  }
 }
 
 # PersistentVolumeClaim para MariaDB
@@ -78,6 +81,10 @@ resource "kubernetes_persistent_volume_claim" "mariadb" {
         storage = "5Gi"
       }
     }
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 
   depends_on = [kubernetes_persistent_volume.mariadb]
@@ -236,7 +243,10 @@ resource "kubernetes_persistent_volume" "matomo" {
     }
   }
 
-
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [spec[0].claim_ref]
+  }
 }
 
 # PersistentVolumeClaim para Matomo
@@ -257,6 +267,10 @@ resource "kubernetes_persistent_volume_claim" "matomo" {
         storage = "5Gi"
       }
     }
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 
   depends_on = [kubernetes_persistent_volume.matomo]
@@ -341,24 +355,6 @@ resource "kubernetes_deployment" "matomo" {
           volume_mount {
             name       = "matomo-storage"
             mount_path = "/var/www/html"
-          }
-
-          liveness_probe {
-            http_get {
-              path = "/"
-              port = 80
-            }
-            initial_delay_seconds = 60
-            period_seconds        = 10
-          }
-
-          readiness_probe {
-            http_get {
-              path = "/"
-              port = 80
-            }
-            initial_delay_seconds = 30
-            period_seconds        = 5
           }
         }
 
