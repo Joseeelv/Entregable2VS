@@ -1,5 +1,7 @@
 # Kubernetes + Terraform + CI/CD - Despliegue de Aplicaciones
 
+## [El Repositorio](https://github.com/Joseeelv/Entregable2VS)
+
 [![Docker Build](https://github.com/Joseeelv/Entregable2VS/actions/workflows/docker-build.yml/badge.svg)](https://github.com/Joseeelv/Entregable2VS/actions/workflows/docker-build.yml)
 [![Terraform](https://img.shields.io/badge/Terraform-%235835CC.svg?logo=terraform&logoColor=white)](https://www.terraform.io/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-%23326ce5.svg?logo=kubernetes&logoColor=white)](https://kubernetes.io/)

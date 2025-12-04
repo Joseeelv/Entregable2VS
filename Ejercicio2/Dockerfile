@@ -34,9 +34,9 @@ RUN { \
 
 # Configurar límites de PHP
 RUN { \
-    echo 'upload_max_filesize=128M'; \
-    echo 'post_max_size=128M'; \
-    echo 'memory_limit=256M'; \
+    echo 'upload_max_filesize=512M'; \
+    echo 'post_max_size=512M'; \
+    echo 'memory_limit=512M'; \
     echo 'max_execution_time=300'; \
     } > /usr/local/etc/php/conf.d/custom.ini
 

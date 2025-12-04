@@ -12,7 +12,7 @@ terraform {
 # Provider de Kubernetes conectándose al cluster kind-matomo
 provider "kubernetes" {
   config_path    = "~/.kube/config"
-  config_context = "kind-matomo"
+  config_context = "kind-matomo-cluster"
 }
 
 # Secret para MariaDB
